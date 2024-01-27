@@ -1,8 +1,15 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import measurement from "../assests/images/measurement.jpg";
 import icon from "../assests/images/body-measurement.jpg";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { css } from "@emotion/react";
+import { NotificationManager } from "react-notifications";
+import { BASE_URL } from "../environtments";
+import { FadeLoader } from "react-spinners";
+
+
 export default function SearchAddMeasurement() {
   const navigate = useNavigate();
   const [mode, setMode] = useState("Check");
@@ -10,13 +17,24 @@ export default function SearchAddMeasurement() {
     heightCm: "",
     weightKgs: "",
     age: "",
-    weistCm: "",
+    waistCm: "",
+  });
+  const [responseData, setResponseData] = useState({
+    heightCm: "",
+    weightKgs: "",
+    age: "",
+    waistCm: "",
   });
   const handleCheckSizes = () => {
-    console.log("Height:", formData.heightCm);
-    console.log("Weight:", formData.weightKgs);
-    console.log("Age:", formData.age);
-    setMode("Add");
+    if (formData.age && formData.heightCm && formData.weightKgs) {
+      fetchData();
+    } else {
+      NotificationManager.warning(
+        "Please fill required feilds.",
+        "Warning",
+        3000
+      );
+    }
   };
 
   const handleInputChange = (e) => {
@@ -26,107 +44,233 @@ export default function SearchAddMeasurement() {
     });
   };
 
+  const handlePostRequest = (e) => {
+    if (
+      formData.age &&
+      formData.heightCm &&
+      formData.weightKgs &&
+      formData.waistCm
+    ) {
+      setLoading(!loading);
+      postFormData();
+    } else {
+      NotificationManager.warning(
+        "Please fill required feilds.",
+        "Warning",
+        3000
+      );
+    }
+  };
+
+  const postFormData = async () => {
+    try {
+      setLoading(!loading);
+      setColor("#0783f7");
+      const response = await axios.post(
+        `${BASE_URL}/male/human/measurement/add`,
+        formData
+      );
+      setResponseData({
+        ...responseData,
+        heightCm: response.data.heightCm,
+        weightKgs: response.data.weightKgs,
+        age: response.data.age,
+        waistCm: response.data.waistCm,
+      });
+      setFormData({
+        heightCm: "",
+        weightKgs: "",
+        age: "",
+        waistCm: "",
+      });
+      NotificationManager.success(
+        "Your waist size has been successfully added!",
+        "Error",
+        3000
+      );
+      setMode("Check");
+    } catch (error) {
+      NotificationManager.error("Service not response.", "Error", 3000);
+    } finally {
+      setLoading(loading);
+      setColor("#ffffff");
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      setLoading(!loading);
+      setColor("#0783f7");
+      const response = await axios.get(
+        `${BASE_URL}/male/human/getMeasurement?heightCm=${formData.heightCm}&weightKgs=${formData.weightKgs}&age=${formData.age}`
+      );
+      setResponseData({
+        ...responseData,
+        heightCm: response.data.heightCm,
+        weightKgs: response.data.weightKgs,
+        age: response.data.age,
+        waistCm: response.data.waistCm,
+      });
+      setFormData({
+        heightCm: "",
+        weightKgs: "",
+        age: "",
+        waistCm: "",
+      });
+      NotificationManager.success(
+        "Your waist size has been successfully identified!",
+        "Success",
+        3000
+      );
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setMode("Add");
+        setResponseData({});
+        NotificationManager.error(
+          "Your Waist Size not found. Please add your Waist size.",
+          "Error",
+          3000
+        );
+      } else {
+        NotificationManager.error(error.message, "Error", 3000);
+      }
+    } finally {
+      setLoading(loading);
+      setColor("#ffffff");
+    }
+  };
+
+  let [loading, setLoading] = useState(false);
+  let [color, setColor] = useState("#ffffff");
+
   return (
-    <SearchAddWrapper>
-      <img
-        className="icone-image"
-        src={icon}
-        alt=""
-        onClick={() => navigate("/")}
-      />
-      <form className="card">
-        <div className="card-body">
-          <div className="form-2 ">
-            <h1 className="title text-css">{mode} your sizes</h1>
-            <div className="row mb-3 justify-content-center align-items-center">
-              <div className="col-md-2 col-sm-12">
-                <label className="col-form-label">Enter your height</label>
-                <span className="text-danger">*</span>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="heightCm"
-                  value={formData.heightCm}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="col-md-2 col-sm-12">
-                <label className="col-form-label">Enter your weight</label>
-                <span className="text-danger">*</span>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="weightKgs"
-                  value={formData.weightKgs}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="col-md-2 col-sm-12">
-                <label className="col-form-label">Enter your age</label>
-                <span className="text-danger">*</span>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.age}
-                  name="age"
-                  onChange={handleInputChange}
-                />
-              </div>
-              {mode === "Add" && (
+    <>
+      <SearchAddWrapper>
+        <SpinnerOverlay>
+          <FadeLoader
+            color={color}
+            loading={loading}
+            size={150}
+            aria-label="Loading"
+            data-testid="loader"
+          />
+        </SpinnerOverlay>
+
+        <img
+          className="icone-image"
+          src={icon}
+          alt=""
+          onClick={() => navigate("/")}
+        />
+        <form className="card">
+          <div className="card-body">
+            <div className="form-2 ">
+              <h1 className="title text-css">{mode} your size</h1>
+              <div className="row mb-3 justify-content-center align-items-center">
                 <div className="col-md-2 col-sm-12">
-                  <label className="col-form-label">
-                    Enter your Weist Size
-                  </label>
+                  <label className="col-form-label">Enter your height (Cm)</label>
                   <span className="text-danger">*</span>
                   <input
-                    type="text"
+                    type="number"
                     className="form-control"
-                    value={formData.weistCm}
-                    name="weistCm"
+                    name="heightCm"
+                    value={formData.heightCm}
                     onChange={handleInputChange}
+                    // readOnly={mode === 'Add'}
                   />
                 </div>
-              )}
-              <div className="col-md-2 col-sm-12">
-                <button
-                  type="button"
-                  className="btn btn-primary px-4"
-                  style={{ marginTop: "35px" }}
-                  onClick={handleCheckSizes}
-                >
-                  {mode}
-                </button>
+                <div className="col-md-2 col-sm-12">
+                  <label className="col-form-label">Enter your weight (Kgs)</label>
+                  <span className="text-danger">*</span>
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="weightKgs"
+                    value={formData.weightKgs}
+                    onChange={handleInputChange}
+                    // readOnly={mode === 'Add'}
+                  />
+                </div>
+                <div className="col-md-2 col-sm-12">
+                  <label className="col-form-label">Enter your age (Years)</label>
+                  <span className="text-danger">*</span>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={formData.age}
+                    name="age"
+                    onChange={handleInputChange}
+                    // readOnly={mode === 'Add'}
+                  />
+                </div>
+                {mode === "Add" && (
+                  <div className="col-md-2 col-sm-12">
+                    <label className="col-form-label">
+                      Enter your Weist Size(Cm)
+                    </label>
+                    <span className="text-danger">*</span>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={formData.waistCm}
+                      name="waistCm"
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                )}
+                <div className="col-md-2 col-sm-12">
+                  {mode == "Add" ? (
+                    <button
+                      type="button"
+                      className="btn btn-primary px-4"
+                      style={{ marginTop: "35px" }}
+                      onClick={handlePostRequest}
+                    >
+                      Add
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-primary px-4"
+                      style={{ marginTop: "35px" }}
+                      onClick={handleCheckSizes}
+                    >
+                      Check
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </form>
-      <div className="row justify-content-center align-items-center">
-        <div className="col-md-3 col-sm-6">
-          <div className="image-container">
-            <img src={measurement} alt="" />
+        </form>
+        <div className="row justify-content-center align-items-center">
+          <div className="col-md-3 col-sm-6">
+            <div className="image-container">
+              <img src={measurement} alt="" />
+            </div>
+          </div>
+          <div className="col-md-3 col-sm-6">
+            <div className="contet-conatiner">
+              <h4>Height(Cm) - {responseData.heightCm}</h4>
+              <hr></hr>
+              <h4>Weight(Kgs) - {responseData.weightKgs}</h4>
+              <hr></hr>
+              <h4>Age - {responseData.age}</h4>
+              <hr></hr>
+              <h4>Waist(cm) - {responseData.waistCm}</h4>
+              <hr></hr>
+            </div>
           </div>
         </div>
-        <div className="col-md-3 col-sm-6">
-          <div className="contet-conatiner">
-            <h4>Height(Cm) - {formData.heightCm}</h4>
-            <hr></hr>
-            <h4>Weight(Kgs) - {formData.weightKgs}</h4>
-            <hr></hr>
-            <h4>Age - {formData.age}</h4>
-            <hr></hr>
-            <h4>Weist(cm) - {formData.weistCm}</h4>
-            <hr></hr>
-          </div>
-        </div>
-      </div>
-    </SearchAddWrapper>
+      </SearchAddWrapper>
+    </>
   );
 }
 
 const SearchAddWrapper = styled.div`
   width: 100%;
   height: 100%;
+  z-index: 2;
   .icone-image {
     width: 50px;
     height: 50px;
@@ -148,4 +292,11 @@ const SearchAddWrapper = styled.div`
       height: 100%;
     }
   }
+`;
+const SpinnerOverlay = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
 `;
