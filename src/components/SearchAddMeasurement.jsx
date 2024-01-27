@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import measurement from "../assests/images/measurement.jpg";
 import icon from "../assests/images/body-measurement.jpg";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { css } from "@emotion/react";
 import { NotificationManager } from "react-notifications";
 import { BASE_URL } from "../environtments";
 import { FadeLoader } from "react-spinners";
@@ -219,7 +218,7 @@ export default function SearchAddMeasurement() {
                   </div>
                 )}
                 <div className="col-md-2 col-sm-12">
-                  {mode == "Add" ? (
+                  {mode === "Add" ? (
                     <button
                       type="button"
                       className="btn btn-primary px-4"
