@@ -205,7 +205,7 @@ export default function SearchAddMeasurement() {
                 {mode === "Add" && (
                   <div className="col-md-2 col-sm-12">
                     <label className="col-form-label">
-                      Enter your Weist Size(Cm)
+                      Enter your Waist Size(Cm)
                     </label>
                     <span className="text-danger">*</span>
                     <input
@@ -242,7 +242,7 @@ export default function SearchAddMeasurement() {
             </div>
           </div>
         </form>
-        <div className="row justify-content-center align-items-center">
+        <FullWidthRow className="row justify-content-center align-items-center">
           <div className="col-md-3 col-sm-6">
             <div className="image-container">
               <img src={measurement} alt="" />
@@ -260,14 +260,14 @@ export default function SearchAddMeasurement() {
               <hr></hr>
             </div>
           </div>
-        </div>
+        </FullWidthRow>
       </SearchAddWrapper>
     </>
   );
 }
 
 const SearchAddWrapper = styled.div`
-  width: 100%;
+  max-width: 100%; 
   height: 100%;
   z-index: 2;
   .icone-image {
@@ -284,11 +284,13 @@ const SearchAddWrapper = styled.div`
   }
   background-color: whiteSmoke !important;
   .image-container {
+    max-width: 100%;
     height: 400px;
-    width: fit-content;
     border: 2px solid black;
     img {
+      width: 100%;
       height: 100%;
+      object-fit: cover;
     }
   }
 `;
@@ -298,4 +300,7 @@ const SpinnerOverlay = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 999;
+`;
+const FullWidthRow = styled.div`
+  width: 100vw;
 `;

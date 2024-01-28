@@ -1,36 +1,40 @@
 import React from "react";
 import styled from "styled-components";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import icon from "../assests/images/body-measurement.jpg";
 import fullWeistImg from "../assests/images/image-screen.png";
 
 export default function DiscriptionPage() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <>
-    <Container>
-      <div className="wrapper">
-        <div className="background-img">
-          <img src={fullWeistImg} alt="" />
-        </div>
-        <div className="content-wrapper">
-          <div>
-            <img src={icon} alt="" />
+      <Container>
+        <div className="wrapper">
+          <div className="background-img">
+            <img src={fullWeistImg} alt="" />
           </div>
+          <div className="content-wrapper">
+            <div>
+              <img src={icon} alt="" />
+            </div>
 
-          <div className="content">
-            <h1 className="title">
-              Do you want to know your weist size click on continue
-            </h1>
-          </div>
-          <div>
-            <button type="button" className="btn btn-primary px-4" onClick={() => navigate('/measurements')}>
-              Continue
-            </button>
+            <div className="content">
+              <h1 className="title">
+                Do you want to know your Waist size click on continue
+              </h1>
+            </div>
+            <div>
+              <button
+                type="button"
+                className="btn btn-primary px-4"
+                onClick={() => navigate("/measurements")}
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </Container>
+      </Container>
     </>
   );
 }
@@ -46,8 +50,15 @@ const Container = styled.div`
     justify-content: center;
     align-items: center;
     .background-img {
-      height: 100%;
+      height: 100vh;
+      width:100vw;
       filter: brightness(70%);
+
+      img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+      }
     }
     .content-wrapper {
       position: absolute;
@@ -62,7 +73,7 @@ const Container = styled.div`
         width: 100px;
         height: 100px;
         background-color: white;
-        border-radius:2px
+        border-radius: 2px;
       }
       .content {
         text-align: center;
