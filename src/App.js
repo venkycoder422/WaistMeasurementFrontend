@@ -8,7 +8,7 @@ import 'react-notifications/lib/notifications.css';
 const App = () => {
   const notificationRef = useRef();
   return (
-<BrowserRouter basename='https://waistmeasurement.onrender.com'>
+<BrowserRouter>
 <Routes>
   <Route exact path='/' element={<DiscriptionPage />}></Route>
   <Route exact path='/measurements' element={<SearchAddMeasurement />}></Route>
